@@ -10,13 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190819180106) do
+ActiveRecord::Schema.define(version: 20190820190917) do
 
   create_table "animes", force: :cascade do |t|
     t.string   "name"
     t.text     "synopsis"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer  "mal_id"
   end
 
   create_table "reviews", force: :cascade do |t|
@@ -26,6 +27,7 @@ ActiveRecord::Schema.define(version: 20190819180106) do
     t.float    "rating"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer  "mal_id"
   end
 
   create_table "users", force: :cascade do |t|

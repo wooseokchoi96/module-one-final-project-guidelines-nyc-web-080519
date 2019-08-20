@@ -1,11 +1,29 @@
 require_relative '../config/environment'
 
-# user1 = User.create(username: 'test_user')
-# anime1 = Anime.create(name: 'naruto')
-# review1 = Review.create(user_id: user1.id, anime_id: anime1.id, review: "This was good anime.", rating: 10)
+welcome
+puts 'Prompt message (login or signup)'
+# puts "L for login or S for sign up"
+# input = gets.chomp
+current_user = User.login
+
+
+#menu
+puts 'this is a list of questions'
+
+#picked to write review
+puts 'What anime would you like to write a review for?'
+
+user_input = gets.chomp
+current_user.read_review(user_input)
+# current_user.update_review(user_input)
+#  current_user.create_review(user_input)
 
 
 
+
+
+# ActiveRecord::Base.logger.level = 1    
+# ActiveRecord::Base.logger.level = 0
 
 binding.pry
 puts "HELLO WORLD"
