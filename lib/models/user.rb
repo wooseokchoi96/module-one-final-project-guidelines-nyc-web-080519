@@ -12,7 +12,7 @@ class User < ActiveRecord::Base
             system("clear")
             puts 'Username was not found. Please try again.'
             login
-        elsif User.find_by(password: password) == nil 
+        elsif User.find_by(username: username, password: password) == nil 
             system("clear")
             puts 'Invalid password. Please try again.'
             login
@@ -20,7 +20,7 @@ class User < ActiveRecord::Base
             current_user = User.find_by(username: username)
             system("clear")
             puts "Welcome #{current_user.username}!"
-            current_user
+            return current_user
         end
     end
 
@@ -40,7 +40,7 @@ class User < ActiveRecord::Base
             puts "Account Setup Complete!"
             current_user = User.find_by(username: user)
             puts "Welcome #{user}!"
-            current_user
+            return current_user
         end
         
     end
@@ -76,7 +76,7 @@ class User < ActiveRecord::Base
 
     def create_review(title)
     # if there is no review...
-        id = Anime.chosen_result(title)["mal_id"]
+        id = Anime.find_or_create_anime_in_table(title).mal_id
         anime = Anime.find_by(mal_id: id)
         puts 'Please write your review for this anime: '
         review = gets.chomp
@@ -86,23 +86,24 @@ class User < ActiveRecord::Base
     end
 
     def update_review(title)
-        id = Anime.chosen_result(title)["mal_id"]
-        found = self.reviews.find_by(mal_id: id)
-        if found.nil?
+        anime = Anime.find_or_create_anime_in_table(title)
+        my_review = self.reviews.select{|review| review.anime.name == anime.name}.first
+        binding.pry
+        if my_review.nil?
             puts 'You have not written a review for this anime yet.'
-            #return them to the prompt
+            # return them to the prompt
         else
-            anime = Anime.find_by(mal_id: id)
             puts 'Please write your review for this anime: '
             review = gets.chomp
             puts 'Please provide a rating for this anime (1~10): '
             rating = gets.chomp.to_i
-            Review.update(user_id: self.id, anime_id: anime.id, review: review, rating: rating)
+            my_review.update(review: review, rating: rating)
+            binding.pry
         end
     end
 
     def read_review(title)
-        id = Anime.chosen_result(title)["mal_id"]
+        id = Anime.find_or_create_anime_in_table(title).mal_id
         found = self.reviews.find_by(mal_id: id)
         if found.nil?
             puts 'You have not written a review for this anime yet.'
@@ -112,6 +113,36 @@ class User < ActiveRecord::Base
             puts "Your review for #{found.anime.name} is: "
             puts '________________________________'
             puts "#{found.review}"
+        end
+    end
+
+    def delete_review(title)
+        id = Anime.find_or_create_anime_in_table(title).mal_id
+        found = self.reviews.find_by(mal_id: id)
+        if found.nil?
+            puts 'You have not written a review for this anime yet.'
+            #return to prompt
+        else
+            puts "Your review for #{found.anime.name} is: "
+            puts '________________________________'
+            puts "#{found.review}"
+            puts 'Do you want to delete this review? (y or n)'
+            user_input = gets.chomp.downcase
+            if user_input == 'y' 
+                puts 'Your review has been deleted.'
+                found.delete
+            else
+                puts 'go back to prompt'
+            end
+        end
+    end
+
+    def all_reviews
+        self.reviews.each do |review|
+            puts "Your review for #{review.anime.name} is :"
+            puts "#{review.review}"
+            puts '_________________________________'
+            sleep(1)
         end
     end
 
