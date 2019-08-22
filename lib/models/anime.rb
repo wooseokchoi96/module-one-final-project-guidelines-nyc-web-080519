@@ -1,31 +1,30 @@
 require 'pry'
+require 'tty-prompt'
+
 class Anime < ActiveRecord::Base
     has_many :reviews
     has_many :users, through: :reviews
 
-    # takes anime name and returns top 5 search results
-    # array of hashes
+    PROMPT = TTY::Prompt.new
+
     def self.top_5_results(title)
         qry = Jikan::Query.new
         anime = qry.search(title, :anime)
         top_5_results = anime.result.take(5)
     end
 
-    # ask user which result is correct one
-    # provides that specific hash from array of hashes
     def self.find_anime_hash(title)
         top_5 = self.top_5_results(title)
         # binding.pry
-        puts 'These are the top five results. Please pick the corresponding number.'
-        top_5_titles = top_5.map{|anime| anime.title}.each.with_index(1){|anime, index| puts "#{index}. #{anime}"}
-        user_input = gets.chomp.to_i
+        # puts 'These are the top five results. Please pick the corresponding number.'
+        results = []
+        top_5_titles = top_5.map{|anime| anime.title}.each.with_index(1){|anime, index| results << "#{index}. #{anime}"}
+        # user_input = gets.chomp.to_i
+        user_input = PROMPT.select('These are the top five results. Please pick one.', results).to_i
         anime_hash = top_5[user_input - 1].raw
         anime_hash
     end
 
-    # takes that specific hash and finds pertinent information (name, synopsis, mal_id)
-    # takes information and searches Anime database
-    # find or create anime instance 
     def self.find_or_create_anime_in_table(title)
         anime_hash = self.find_anime_hash(title)
         name = anime_hash["title"]
@@ -33,25 +32,6 @@ class Anime < ActiveRecord::Base
         mal_id = anime_hash["mal_id"]
         Anime.find_or_create_by(name: name, synopsis: synopsis, mal_id: mal_id)
     end
-
-
-    # def self.chosen_result(title)
-    # #refactor
-    #     # anime_hash = self.find_anime_hash(title)
-    #     # binding.pry
-    #     anime_instance = self.find_or_create_anime_in_table(title)        
-    #     # reuturn value
-    #     # top_5 = self.top_5_results(title)
-    #     # puts 'These are the top five results. Please pick the corresponding number.'
-    #     # top_5_titles = top_5.map{|anime| anime.title}.each.with_index(1){|anime, index| puts "#{index}. #{anime}"}
-    #     # user_input = gets.chomp.to_i
-    #     # anime_hash = top_5[user_input - 1].raw
-    #     # name = anime_hash["title"]
-    #     # synopsis = anime_hash["synopsis"]
-    #     # mal_id = anime_hash["mal_id"]
-    #     # Anime.find_or_create_by(name: name, synopsis: synopsis, mal_id: mal_id)
-    #     # anime_hash
-    # end
 
     def self.search_anime(title)
         if self.find_by(name: title)
