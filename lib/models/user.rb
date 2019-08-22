@@ -1,29 +1,27 @@
+require 'tty-prompt'
+
 class User < ActiveRecord::Base
     has_many :reviews
     has_many :animes, through: :reviews
 
+    PROMPT = TTY::Prompt.new
+
     def self.login
         puts 'Please login with your username and password.'
-        puts 'Username: '
-        username = gets.chomp.downcase
+        username = PROMPT.ask('Username: ')
         if User.find_by(username: username).nil? 
             system("clear")
             puts 'Username was not found.'
-            puts "Do you want to sign up? (y or n)"
-            user_input = gets.chomp
+            user_input = PROMPT.select("Do you want to sign up?", %w(yes no))
             system('clear')
             case user_input
-            when 'y' 
+            when 'yes' 
                 return self.sign_up
-            when 'n' 
-                login
-            else
-                puts 'Invalid entry. Please try again.'
+            when 'no' 
                 login
             end
         end
-        puts 'Password: '
-        password = gets.chomp
+        password = PROMPT.mask('Password: ')
         if User.find_by(username: username, password: password).nil? 
             system("clear")
             puts 'Invalid password.'
@@ -37,24 +35,20 @@ class User < ActiveRecord::Base
     end
 
     def self.forgot_password
-        puts 'Do you need to reset your password? (y or n)'
-        user_input = gets.chomp
+        user_input = PROMPT.select('Do you need to reset your password?', %w(yes no))
         case user_input
-        when 'y'
-            puts "Please enter your pin: "
-            pin = gets.chomp.to_i
-            puts "Reconfirm your username: "
-            username = gets.chomp
+        when 'yes'
+            pin = PROMPT.mask('Please enter your pin: ').to_i
+            username = PROMPT.ask('Reconfirm your username: ')
             if !User.find_by(username: username, pin: pin).nil?
                 while true
                     puts "Your pin matches our record."
-                    puts "Please enter a new password: "
-                    password1 = gets.chomp
-                    puts "Please reconfirm your password: "
-                    password2 = gets.chomp
+                    password1 = PROMPT.mask('Please enter a new password: ')
+                    password2 = PROMPT.mask('Please reconfirm your password: ')
                     if password1 == password2
                         puts "Password has been updated."
                         User.update(username: username, pin: pin, password: password1)
+                        system('clear')
                         break
                     else
                         puts "Passwords do not match. Please try again."
@@ -64,20 +58,15 @@ class User < ActiveRecord::Base
                 puts "That username was wrong."
                 self.forgot_password
             end
-        when 'n'
+        when 'no'
             system('clear')
             login
-        else
-            system('clear')
-            puts "Invalid entry. Please try again."
-            self.forgot_password
         end
     end
 
     def self.sign_up
         puts 'Please sign up with username'
-        puts 'Username: '
-        user = gets.chomp.downcase
+        user = PROMPT.ask('Username: ')
         if User.find_by(username: user)
             system("clear")
             puts 'Sorry that username is already taken.'
@@ -92,16 +81,12 @@ class User < ActiveRecord::Base
             puts "Welcome #{user}!"
             return current_user
         end
-        
     end
 
     def self.create_pin
         puts "Passwords match! Please enter a pin# for account retrieval"
-        puts "Pin: "
-        pin = gets.chomp.to_i
-        puts "Please reconfirm pin"
-        puts "Pin: "
-        pin2 = gets.chomp.to_i
+        pin = PROMPT.mask('Pin: ')
+        pin2 = PROMPT.mask('Please reconfirm pin: ')
         unless pin == pin2
             puts "Pins do not match. Please try again"
             sleep(1)
@@ -111,11 +96,8 @@ class User < ActiveRecord::Base
     end
 
     def self.create_password
-        puts 'Please enter a password'
-        puts 'Password: '
-        password = gets.chomp
-        puts 'Please reconfirm password'
-        password2 = gets.chomp
+        password = PROMPT.mask('Please enter a password: ')
+        password2 = PROMPT.mask('Please reconfirm password: ')
         unless password == password2
             puts "Passwords do not match. Please try again"
             sleep(1)
@@ -132,10 +114,8 @@ class User < ActiveRecord::Base
             menu_selection(current_user)
         else
             anime = Anime.find_by(mal_id: id)
-            puts 'Please write your review for this anime: '
-            review = gets.chomp
-            puts 'Please provide a rating for this anime (1~10): '
-            rating = gets.chomp.to_i
+            review = PROMPT.ask('Please write your review for this anime:')
+            rating = PROMPT.ask('Please provide a rating for this anime (1~10):').to_i
             user_review = Review.create(user_id: self.id, anime_id: anime.id, review: review, rating: rating, mal_id: id)
             system('clear')
             puts "You created a review for #{user_review.anime.name} as:"
@@ -151,10 +131,8 @@ class User < ActiveRecord::Base
             puts 'You have not written a review for this anime yet.'
             menu_selection(current_user)
         else
-            puts 'Please write your review for this anime: '
-            review = gets.chomp
-            puts 'Please provide a rating for this anime (1~10): '
-            rating = gets.chomp.to_i
+            review = PROMPT.ask('Please write your review for this anime:')
+            rating = PROMPT.ask('Please provide a rating for this anime (1~10):').to_i
             my_review.update(review: review, rating: rating)
             system('clear')
             puts "You updated a review for #{my_review.anime.name} as: "
@@ -189,10 +167,9 @@ class User < ActiveRecord::Base
             puts "Your review for #{found.anime.name} is: "
             puts '============================================'
             puts "#{found.review}"
-            puts 'Do you want to delete this review? (y or n)'
-            user_input = gets.chomp.downcase
+            user_input = PROMPT.select('Do you want to delete this review?', %w(yes no))
             system('clear')
-            if user_input == 'y' 
+            if user_input == 'yes' 
                 puts 'Your review has been deleted.'
                 found.delete
             else
