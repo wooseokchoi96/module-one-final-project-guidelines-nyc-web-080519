@@ -36,4 +36,3 @@ ruby bin/run.rb
       - Discuss 3 things you learned in the process of working on this project.
       - Address, if anything, what you would change or add to what you have today?
       - Present any code you would like to highlight.   
-

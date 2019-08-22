@@ -75,7 +75,6 @@ class Anime < ActiveRecord::Base
             puts random_review.review
         else
             id = Anime.find_or_create_anime_in_table(title).mal_id
-            binding.pry
             all_reviews = RestClient.get("https://api.jikan.moe/v3/anime/#{id}/reviews")
             reviews_hash = JSON.parse(all_reviews)
             max_number = reviews_hash["reviews"].length

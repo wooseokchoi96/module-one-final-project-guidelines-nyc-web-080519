@@ -1,4 +1,5 @@
 def welcome
+    system('clear')
     puts 'Welcome to the Anime Query Machine!'
     puts 'You can search for anime information and write reviews!'
     puts 'Please login (l) or sign up (s).'
@@ -15,6 +16,11 @@ def login_or_signup
         User.login
     when 's'   
         User.sign_up
+    else
+        system('clear')
+        puts 'Invalid entry. Please try again.'
+        welcome
+        login_or_signup
     end
 end
 
@@ -38,26 +44,34 @@ def gets_anime
 end
 
 def menu_selection(user)
+    menu
     user_input = gets.chomp.to_i
+    system('clear')
     case user_input
-    when 1
+    when 1  
         anime = gets_anime
         Anime.search_anime(anime)
+        menu_selection(user)
     when 2
         anime = gets_anime
         Anime.review(anime)
+        menu_selection(user)
     when 3
         anime = gets_anime
         user.create_review(anime)
+        menu_selection(user)
     when 4
         user.all_reviews
+        menu_selection(user)
     when 5
         anime = gets_anime
         user.update_review(anime)
+        menu_selection(user)
     when 6
         anime = gets_anime
         user.delete_review(anime)
+        menu_selection(user)
     when 7
-        Process.kill('INT', Process.pid)
+        puts 'Goodbye!'
     end
 end

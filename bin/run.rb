@@ -4,7 +4,7 @@ ActiveRecord::Base.logger = nil
 
 welcome
 current_user = login_or_signup
-menu
+#menu
 menu_selection(current_user)
 
 
