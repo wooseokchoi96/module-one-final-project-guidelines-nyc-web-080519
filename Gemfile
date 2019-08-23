@@ -9,4 +9,5 @@ gem "jikan.rb", "0.0.7"
 gem "rest-client", "~> 2.0.1"
 gem "json"
 gem "tty-prompt"
+gem 'faker', github: 'stympy/faker'
 # gem "catpix"

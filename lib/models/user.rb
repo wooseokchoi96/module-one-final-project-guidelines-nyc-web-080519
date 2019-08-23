@@ -1,4 +1,5 @@
 require 'tty-prompt'
+require 'faker'
 
 class User < ActiveRecord::Base
     has_many :reviews

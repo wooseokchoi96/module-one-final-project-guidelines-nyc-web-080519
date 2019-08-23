@@ -1,4 +1,5 @@
 require 'tty-prompt'
+require 'faker'
 $prompt = TTY::Prompt.new
 
 def welcome

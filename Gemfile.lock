@@ -1,3 +1,10 @@
+GIT
+  remote: git://github.com/stympy/faker.git
+  revision: 840cf10c8f2d42d8348a874d2500a617ae635a9c
+  specs:
+    faker (2.1.2)
+      i18n (>= 0.8)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -90,6 +97,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  faker!
   jikan.rb (= 0.0.7)
   json
   pry

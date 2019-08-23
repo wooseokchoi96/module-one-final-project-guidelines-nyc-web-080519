@@ -1,5 +1,6 @@
 require 'pry'
 require 'tty-prompt'
+require 'faker'
 
 class Anime < ActiveRecord::Base
     has_many :reviews
@@ -62,8 +63,12 @@ class Anime < ActiveRecord::Base
             anime_info = reviews_hash["reviews"][random_review]
             reviewer = anime_info["reviewer"]["username"]
             review = anime_info["content"]
+            review = "\n" + review.gsub('\\n', '').gsub("\r\n", "\r\n\n")
             rating = anime_info["reviewer"]["scores"]["overall"]
             user = User.find_or_create_by(username: reviewer)
+            new_pass = Faker::Internet.password if user.password.nil?
+            new_pin = rand(1000..9999) if user.pin.nil?
+            user.update(password: new_pass, pin: new_pin)
             anime = Anime.find_by(mal_id: id)
             Review.find_or_create_by(user_id: user.id, anime_id: anime.id, review: review, rating: rating)
             puts review
